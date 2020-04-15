@@ -1,0 +1,3 @@
+package com.android.listadapterdelegate
+
+interface ListItem
