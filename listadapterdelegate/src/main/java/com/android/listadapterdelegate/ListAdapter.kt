@@ -30,36 +30,44 @@ class ListAdapter<T : ListItem>(private val delegateManager: DelegateManager<T>)
     }
 
     fun addItemAtPosition(listItem: T, position: Int) {
-        if (position < 0 && position >= listItems.size) {
-            throw IllegalArgumentException("Position was $position but array length was only ${listItems.size}")
-        }
-        listItems.add(position, listItem)
-        notifyItemInserted(position)
+        position
+            .takeIf {
+                it in 0..listItems.size
+            }?.let {
+                listItems.add(it, listItem)
+                notifyItemInserted(it)
+            }
+        throw IllegalArgumentException("Position was $position but array length was only ${listItems.size}")
     }
 
     fun removeItem(listItem: T) {
-        val position: Int = listItems.indexOf(listItem)
-        if (position >= 0) {
-            listItems.removeAt(position)
-            notifyItemRemoved(position)
-        }
+        listItems.indexOf(listItem)
+            .takeIf { it >= 0 }
+            ?.let {
+                listItems.removeAt(it)
+                notifyItemRemoved(it)
+            }
     }
 
     fun removeItemAt(position: Int) {
-        if (position >= 0 && position < listItems.size) {
-            listItems.removeAt(position)
-            notifyItemRemoved(position)
-        } else {
-            throw IllegalArgumentException("Item position should be from 0 to ${listItems.size} size")
-        }
+        position
+            .takeIf {
+                it in 0 until listItems.size
+            }?.let {
+                listItems.removeAt(position)
+                notifyItemRemoved(position)
+                return
+            }
+        throw IllegalArgumentException("Item position should be from 0 to ${listItems.size} size")
     }
 
     fun getItemAt(position: Int): T {
-        return if (position < listItems.size && position >= 0) {
-            listItems[position]
-        } else {
-            throw IllegalArgumentException("Item position should be from 0 to ${listItems.size} size")
-        }
+        position
+            .takeIf {
+                it in 0 until listItems.size
+            }
+            ?.let { return listItems[it] }
+        throw IllegalArgumentException("Item position should be from 0 to ${listItems.size} size")
     }
 
     fun clear() {
